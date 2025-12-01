@@ -12,9 +12,8 @@ import {
 import {
   Sheet,
   SheetContent,
-  SheetHeader, // Perlu import ini
   SheetTitle,
-  SheetTrigger, // Perlu import ini (tadi error karena hilang)
+  SheetTrigger
 } from './ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
 import {
@@ -23,15 +22,14 @@ import {
   User,
   ChevronDown,
   Check,
-  AlertCircle,
   RefreshCw,
   Menu,
   Loader2,
   X,
-  CheckCheck,
-  MailOpen, // Perlu import ini (tadi error karena hilang)
+  MailOpen,
+
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { getActiveRole, setActiveRole } from '@/lib/storage';
 import { useNotifications } from '@/hooks/use-notifications';
 import { ROUTES } from '@/routing';
@@ -65,7 +63,7 @@ interface HeaderProps {
   onRoleSwitch?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigate, sidebarCollapsed, onToggleSidebar, onRoleSwitch }) => {
+export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigate, onToggleSidebar, onRoleSwitch }) => {
   const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showRoleSwitchDialog, setShowRoleSwitchDialog] = useState(false);
