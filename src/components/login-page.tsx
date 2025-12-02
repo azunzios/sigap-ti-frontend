@@ -18,10 +18,10 @@ interface LoginPageProps {
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   //INI NANTI DIUBAH
   const [formData, setFormData] = useState({
-    login: 'pegawai@example.com',
-    password: 'password',
+    login: '',
+    password: '',
     rememberMe: true,
-  }); //nanti ini dubah ya
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
