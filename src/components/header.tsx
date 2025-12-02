@@ -145,31 +145,31 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                 <img src="/logo.svg" alt="BPS Logo" className="h-full w-full object-contain p-0.5" />
               </div>
               
-              <div className="hidden md:flex items-center gap-3">
+              <div className="md:flex items-center gap-3">
                 <div className="flex flex-col">
-                  <h1 className="text-sm font-bold text-gray-900 leading-none">SIGAP-TI</h1>
-                  <p className="text-[10px] text-gray-500 leading-tight mt-0.5">BPS Provinsi NTB</p>
+                  <h1 className="text-sm font-bold text-gray-900">SIGAP-TI</h1>
+                  <p className="text-[10px] text-gray-500 mt-0.5 !mb-0">BPS Provinsi NTB</p>
                 </div>
-                
-                {/* Separator kecil */}
-                <div className="h-6 w-px bg-gray-200 mx-1"></div>
+              </div>
+              
+              {/* Separator kecil */}
+              <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
 
-                {/* Role Badge */}
-                <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-[9px] text-gray-400 uppercase tracking-wider font-medium">Role</span>
-                  <div
-                    className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide"
-                    style={{
-                      background: "radial-gradient(ellipse at center, rgba(14,116,144,0.15) 0%, rgba(14,116,144,0.1) 100%)",
-                      border: "1px solid rgba(14,116,144,0.2)",
-                      color: "#0e7490",
-                    }}
-                  >
-                    {activeRole === 'super_admin' ? 'SUPER ADMIN' : 
-                     activeRole === 'admin_layanan' ? 'ADMIN LAYANAN' :
-                     activeRole === 'admin_penyedia' ? 'ADMIN PENYEDIA' :
-                     activeRole === 'teknisi' ? 'TEKNISI' : 'PEGAWAI'}
-                  </div>
+              {/* Role Badge - selalu terlihat */}
+              <div className="flex flex-col items-center justify-center gap-0.5">
+                <span className="text-[9px] text-gray-400 uppercase tracking-wider font-medium">FOR</span>
+                <div
+                  className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide"
+                  style={{
+                    background: "radial-gradient(ellipse at center, rgba(14,116,144,0.15) 0%, rgba(14,116,144,0.1) 100%)",
+                    border: "1px solid rgba(14,116,144,0.2)",
+                    color: "#0e7490",
+                  }}
+                >
+                  {activeRole === 'super_admin' ? 'SUPER ADMIN' : 
+                   activeRole === 'admin_layanan' ? 'ADMIN LAYANAN' :
+                   activeRole === 'admin_penyedia' ? 'ADMIN PENYEDIA' :
+                   activeRole === 'teknisi' ? 'TEKNISI' : 'PEGAWAI'}
                 </div>
               </div>
             </div>
@@ -326,7 +326,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                     <span className="inline-flex mt-2 w-fit items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
                        {activeRole === 'super_admin' ? 'Super Admin' : 
                         activeRole === 'admin_layanan' ? 'Admin Layanan' :
-                        activeRole === 'admin_penyedia' ? 'Admin Penyedia' :
+                        activeRole === 'admin_penyedia' ?   'Admin Penyedia' :
                         activeRole === 'teknisi' ? 'Teknisi' : 'Pegawai'}
                     </span>
                   </div>
