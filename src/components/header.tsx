@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
               <div className="md:flex items-center gap-3">
                 <div className="flex flex-col">
                   <h1 className="text-sm font-bold text-gray-900">SIGAP-TI</h1>
-                  <p className="text-[10px] text-gray-500 mt-0.5 !mb-0">BPS Provinsi NTB</p>
+                  <p className="text-[10px] text-gray-500 !mb-0">BPS Provinsi NTB</p>
                 </div>
               </div>
               
