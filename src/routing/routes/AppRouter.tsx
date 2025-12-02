@@ -7,6 +7,7 @@ import { ProtectedRoute } from '../guards/ProtectedRoute';
 import { PublicRoute } from '../guards/PublicRoute';
 import { ROUTES, buildRoute, isValidRole } from '../constants';
 import type { User } from '../../types';
+import {ResetPasswordPage} from '@/components/reset-password-page';
 
 interface AppRouterProps {
   currentUser: User | null;
@@ -41,6 +42,14 @@ export const AppRouter: React.FC<AppRouterProps> = ({
             </PublicRoute>
           }
         />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute user={currentUser}>
+              <ResetPasswordPage />
+            </PublicRoute>
+          }
+        />
 
         {/* Protected Routes - All menu views under MainLayout with role param */}
         <Route
@@ -65,7 +74,10 @@ export const AppRouter: React.FC<AppRouterProps> = ({
           path="/"
           element={
             currentUser ? (
-              <Navigate to={buildRoute(ROUTES.DASHBOARD, currentUser.role)} replace />
+              <Navigate
+                to={buildRoute(ROUTES.DASHBOARD, currentUser.role)}
+                replace
+              />
             ) : (
               <Navigate to={ROUTES.LOGIN} replace />
             )
