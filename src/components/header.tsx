@@ -311,7 +311,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                 <Button variant="ghost" size="sm" className="gap-2 h-9 pl-2 pr-1 hover:bg-gray-100 rounded-full ml-1">
                   <Avatar className="h-8 w-8 border border-gray-200">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt={currentUser.name} />}
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-bold">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-500 text-white text-xs">
                       {currentUser.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
