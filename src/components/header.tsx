@@ -27,7 +27,6 @@ import {
   Loader2,
   X,
   MailOpen,
-
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { getActiveRole, setActiveRole } from '@/lib/storage';
@@ -178,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
           {/* ========================================= */}
           {/* RIGHT SIDE: Notifications & User Menu     */}
           {/* ========================================= */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             
             {/* 1. NOTIFICATION SHEET */}
             <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
@@ -186,14 +185,14 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="relative h-9 w-9 p-0 rounded-full hover:bg-gray-100"
+                  className="relative h-9 w-9 p-0 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-gray-50 hover:shadow-md transition-all duration-200"
                 >
                   <Bell className="h-5 w-5 text-gray-600" />
                   {unreadCount > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute top-0 right-0 h-3.5 w-3.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white"
+                      className="absolute top-0 right-0 h-3.5 w-3.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-sm"
                     >
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
@@ -207,7 +206,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                 className="w-full sm:max-w-sm p-0 flex flex-col gap-0 [&>button]:hidden"
               >
                 {/* Header: Judul & Action Buttons */}
-                <div className="flex items-center justify-between p-4 bg-white">
+                <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
                   <SheetTitle className="text-base font-bold text-gray-900">
                     NOTIFIKASI
                   </SheetTitle>
@@ -219,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                         variant="ghost"
                         size="sm" 
                         onClick={handleMarkAll}
-                        className="h-7 text-[11px] font-medium text-gray-500 hover:text-blue-600 px-2"
+                        className="h-7 text-[11px] font-medium rounded-full bg-gradient-to-t from-gray-300 via-gray-200 to-gray-100 text-black-200 hover:text-blue-600 px-2"
                         disabled={loading}
                       >
                         <Check className="mr-1 h-3 w-3" />
@@ -253,26 +252,29 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                           <div
                             key={notification.id}
                             onClick={() => !notification.is_read && markAsRead(notification.id)}
+                            // UPDATED: Styling notifikasi belum dibaca (Gray, Inset 3D, Gradient Bottom->Top, Top Lighting)
                             className={`
-                              relative flex flex-col gap-1.5 p-4 text-sm transition-colors cursor-pointer
-                              border-b border-black last:border-0 hover:bg-gray-50
-                              ${!notification.is_read ? "bg-blue-50/60" : "bg-white"}
+                              relative flex flex-col gap-1.5 p-4 text-sm transition-all cursor-pointer
+                              border-b border-gray-100 last:border-0
+                              ${!notification.is_read 
+                                ? "bg-gradient-to-t from-gray-300 via-gray-100/2 to-gray-50 shadow-[inset_0_2px_5px_rgba(0,0,0,0.06)] border-t border-t-white" 
+                                : "bg-white hover:bg-gray-50"}
                             `}
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <span className={`text-sm ${!notification.is_read ? "font-semibold text-gray-900" : "font-medium text-gray-600"}`}>
+                              <span className={`text-sm ${!notification.is_read ? "font-bold text-gray-800 drop-shadow-[0_1px_0_rgba(255,255,255,1)]" : "font-medium text-gray-600"}`}>
                                 {notification.title}
                               </span>
                               {!notification.is_read && (
-                                <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0 shadow-sm" />
+                                <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0 shadow-sm ring-1 ring-white" />
                               )}
                             </div>
                             
-                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                            <p className={`text-xs line-clamp-2 leading-relaxed ${!notification.is_read ? "text-gray-600" : "text-gray-500"}`}>
                               {notification.message}
                             </p>
                             
-                            <span className="text-[10px] text-gray-400 font-medium">
+                            <span className="text-[10px] text-gray-400 font-medium pt-1">
                               {formatDistanceToNow(new Date(notification.created_at), { 
                                 addSuffix: true,
                                 locale: id 
@@ -308,8 +310,9 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
             {/* 2. USER MENU DROPDOWN */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 h-9 pl-2 pr-1 hover:bg-gray-100 rounded-full ml-1">
-                  <Avatar className="h-8 w-8 border border-gray-200">
+                <Button variant="ghost" size="sm" className="gap-2 h-9 pl-1.5 pr-1 hover:bg-gray-50 rounded-full ml-1">
+                  {/* UPDATED: Avatar dengan Frame Tipis dan Shading */}
+                  <Avatar className="h-8 w-8 border border-gray-300 shadow-sm ring-2 ring-white ring-offset-1 ring-offset-gray-50">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt={currentUser.name} />}
                     <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-500 text-white text-xs">
                       {currentUser.name.charAt(0).toUpperCase()}
@@ -324,10 +327,10 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                     <p className="font-semibold text-sm leading-none">{currentUser.name}</p>
                     <p className="text-xs text-gray-500 font-normal leading-none">{currentUser.email}</p>
                     <span className="inline-flex mt-2 w-fit items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                       {activeRole === 'super_admin' ? 'Super Admin' : 
-                        activeRole === 'admin_layanan' ? 'Admin Layanan' :
-                        activeRole === 'admin_penyedia' ?   'Admin Penyedia' :
-                        activeRole === 'teknisi' ? 'Teknisi' : 'Pegawai'}
+                        {activeRole === 'super_admin' ? 'Super Admin' : 
+                         activeRole === 'admin_layanan' ? 'Admin Layanan' :
+                         activeRole === 'admin_penyedia' ?   'Admin Penyedia' :
+                         activeRole === 'teknisi' ? 'Teknisi' : 'Pegawai'}
                     </span>
                   </div>
                 </DropdownMenuLabel>
