@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showRoleSwitchDialog, setShowRoleSwitchDialog] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  
+
   // Use API-based notifications with pagination
   const { notifications, unreadCount, loading, loadingMore, hasMore, loadMore, markAsRead, markAllAsRead } = useNotifications();
 
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
     <>
       <header className="bg-white h-[72px]">
         <div className="flex items-center justify-between h-full px-4 sm:px-6">
-          
+
           {/* ========================================= */}
           {/* LEFT SIDE: Toggle, Logo, App Name, Badge  */}
           {/* ========================================= */}
@@ -143,14 +143,14 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
               <div className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50">
                 <img src="/logo.svg" alt="BPS Logo" className="h-full w-full object-contain p-0.5" />
               </div>
-              
+
               <div className="md:flex items-center gap-3">
                 <div className="flex flex-col">
                   <h1 className="text-sm font-bold text-gray-900">SIGAP-TI</h1>
                   <p className="text-[10px] text-gray-500 !mb-0">BPS Provinsi NTB</p>
                 </div>
               </div>
-              
+
               {/* Separator kecil */}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
 
@@ -158,17 +158,20 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
               <div className="flex flex-col items-center justify-center gap-0.5">
                 <span className="text-[9px] text-gray-400 uppercase tracking-wider font-medium">FOR</span>
                 <div
-                  className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide"
+                  // Tambahkan: shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.7)]
+                  className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.7)]"
                   style={{
-                    background: "radial-gradient(ellipse at center, rgba(14,116,144,0.15) 0%, rgba(14,116,144,0.1) 100%)",
-                    border: "1px solid rgba(14,116,144,0.2)",
+                    // Gradient "Soap" (agak glossy)
+                    background: "radial-gradient(ellipse at center, rgba(13, 79, 97, 0.2) 0%, rgba(99, 200, 228, 0.25) 100%)",
+                    // Border Luar
+                    border: "1px solid rgba(14,116,144,0.3)",
                     color: "#0e7490",
                   }}
                 >
-                  {activeRole === 'super_admin' ? 'SUPER ADMIN' : 
-                   activeRole === 'admin_layanan' ? 'ADMIN LAYANAN' :
-                   activeRole === 'admin_penyedia' ? 'ADMIN PENYEDIA' :
-                   activeRole === 'teknisi' ? 'TEKNISI' : 'PEGAWAI'}
+                  {activeRole === 'super_admin' ? 'SUPER ADMIN' :
+                    activeRole === 'admin_layanan' ? 'ADMIN LAYANAN' :
+                      activeRole === 'admin_penyedia' ? 'ADMIN PENYEDIA' :
+                        activeRole === 'teknisi' ? 'TEKNISI' : 'PEGAWAI'}
                 </div>
               </div>
             </div>
@@ -178,31 +181,40 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
           {/* RIGHT SIDE: Notifications & User Menu     */}
           {/* ========================================= */}
           <div className="flex items-center gap-3">
-            
+
             {/* 1. NOTIFICATION SHEET */}
             <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
               <SheetTrigger asChild>
-                <Button 
+<Button 
                   variant="ghost" 
-                  size="sm" 
-                  className="relative h-9 w-9 p-0 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-gray-50 hover:shadow-md transition-all duration-200"
+                  size="icon"
+                  className="relative h-auto w-auto p-0 rounded-full hover:bg-transparent"
                 >
-                  <Bell className="h-5 w-5 text-gray-600" />
-                  {unreadCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute top-0 right-0 h-3.5 w-3.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-sm"
-                    >
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </motion.span>
-                  )}
+                  {/* Wrapper Frame Besi */}
+                  <div className="rounded-full p-[2.5px] bg-gradient-to-br from-slate-300 via-white to-slate-400 shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:shadow-md transition-all duration-300">
+                    
+                    {/* Inner White Circle */}
+                    <div className="h-9 w-9 bg-white rounded-full flex items-center justify-center relative">
+                      <Bell className="h-5 w-5 text-gray-600" />
+                      
+                      {/* Red Badge */}
+                      {unreadCount > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute top-0 right-0 h-3.5 w-3.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-sm"
+                        >
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </motion.span>
+                      )}
+                    </div>
+                  </div>
                 </Button>
               </SheetTrigger>
 
               {/* Content Notifikasi */}
-              <SheetContent 
-                side="right" 
+              <SheetContent
+                side="right"
                 className="w-full sm:max-w-sm p-0 flex flex-col gap-0 [&>button]:hidden"
               >
                 {/* Header: Judul & Action Buttons */}
@@ -210,13 +222,13 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                   <SheetTitle className="text-base font-bold text-gray-900">
                     NOTIFIKASI
                   </SheetTitle>
-                  
+
                   <div className="flex items-center gap-1">
                     {/* Tombol Tandai Baca */}
                     {unreadCount > 0 && (
                       <Button
                         variant="ghost"
-                        size="sm" 
+                        size="sm"
                         onClick={handleMarkAll}
                         className="h-7 text-[11px] font-medium rounded-full bg-gradient-to-t from-gray-300 via-gray-200 to-gray-100 text-black-200 hover:text-blue-600 px-2"
                         disabled={loading}
@@ -256,8 +268,8 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                             className={`
                               relative flex flex-col gap-1.5 p-4 text-sm transition-all cursor-pointer
                               border-b border-gray-100 last:border-0
-                              ${!notification.is_read 
-                                ? "bg-gradient-to-t from-gray-300 via-gray-100/2 to-gray-50 shadow-[inset_0_2px_5px_rgba(0,0,0,0.06)] border-t border-t-white" 
+                              ${!notification.is_read
+                                ? "bg-gradient-to-t from-gray-300 via-gray-100/2 to-gray-50 shadow-[inset_0_2px_5px_rgba(0,0,0,0.06)] border-t border-t-white"
                                 : "bg-white hover:bg-gray-50"}
                             `}
                           >
@@ -269,20 +281,20 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                                 <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0 shadow-sm ring-1 ring-white" />
                               )}
                             </div>
-                            
+
                             <p className={`text-xs line-clamp-2 leading-relaxed ${!notification.is_read ? "text-gray-600" : "text-gray-500"}`}>
                               {notification.message}
                             </p>
-                            
+
                             <span className="text-[10px] text-gray-400 font-medium pt-1">
-                              {formatDistanceToNow(new Date(notification.created_at), { 
+                              {formatDistanceToNow(new Date(notification.created_at), {
                                 addSuffix: true,
-                                locale: id 
+                                locale: id
                               })}
                             </span>
                           </div>
                         ))}
-                        
+
                         {/* Load More Trigger */}
                         {hasMore && (
                           <div className="py-4 flex justify-center">
@@ -310,14 +322,19 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
             {/* 2. USER MENU DROPDOWN */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 h-9 pl-1.5 pr-1 hover:bg-gray-50 rounded-full ml-1">
-                  {/* UPDATED: Avatar dengan Frame Tipis dan Shading */}
-                  <Avatar className="h-8 w-8 border border-gray-300 shadow-sm ring-2 ring-white ring-offset-1 ring-offset-gray-50">
-                    {avatarUrl && <AvatarImage src={avatarUrl} alt={currentUser.name} />}
-                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-500 text-white text-xs">
-                      {currentUser.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                <Button variant="ghost" size="sm" className="gap-2 h-auto pl-0 pr-1 hover:bg-transparent rounded-full">
+                  {/* Wrapper Frame Besi - sama dengan bell */}
+                  <div className="rounded-full p-[2.5px] bg-gradient-to-br from-slate-300 via-white to-slate-400 shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:shadow-md transition-all duration-300">
+
+                    {/* Avatar di dalam wrapper - h-9 w-9 sama dengan bell */}
+                    <Avatar className="h-9 w-9 border-0">
+                      {avatarUrl && <AvatarImage src={avatarUrl} alt={currentUser.name} />}
+                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-500 text-white text-xs">
+                        {currentUser.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+
+                  </div>
                   <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
@@ -327,10 +344,10 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onLogout, onNavigat
                     <p className="font-semibold text-sm leading-none">{currentUser.name}</p>
                     <p className="text-xs text-gray-500 font-normal leading-none">{currentUser.email}</p>
                     <span className="inline-flex mt-2 w-fit items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                        {activeRole === 'super_admin' ? 'Super Admin' : 
-                         activeRole === 'admin_layanan' ? 'Admin Layanan' :
-                         activeRole === 'admin_penyedia' ?   'Admin Penyedia' :
-                         activeRole === 'teknisi' ? 'Teknisi' : 'Pegawai'}
+                      {activeRole === 'super_admin' ? 'Super Admin' :
+                        activeRole === 'admin_layanan' ? 'Admin Layanan' :
+                          activeRole === 'admin_penyedia' ? 'Admin Penyedia' :
+                            activeRole === 'teknisi' ? 'Teknisi' : 'Pegawai'}
                     </span>
                   </div>
                 </DropdownMenuLabel>
