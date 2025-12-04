@@ -15,7 +15,7 @@ import {
 } from "@/lib/storage";
 import type { User } from "@/types";
 
-// Visitor counter component - fetch dari Vercel serverless function
+// Visitor counter - fetch dari Vercel serverless function + Upstash Redis
 const VisitorCounter: React.FC = () => {
   const [count, setCount] = useState<number | null>(null);
 
@@ -29,10 +29,20 @@ const VisitorCounter: React.FC = () => {
   if (count === null) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm z-50">
-      <p className="text-xs text-gray-600">
-        <span className="font-medium">{count.toLocaleString()}</span> visitors
-      </p>
+    <div 
+      style={{ 
+        position: 'fixed', 
+        bottom: '8px', 
+        right: '8px', 
+        zIndex: 9999,
+        background: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: '4px 8px',
+        borderRadius: '4px',
+        fontSize: '10px',
+      }}
+    >
+      {count.toLocaleString()} views
     </div>
   );
 };
