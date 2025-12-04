@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Analytics } from '@vercel/analytics/react'
 import { AppRouter } from "@/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -83,6 +84,7 @@ const App: React.FC = () => {
         />
       </div>
       <Toaster position="top-right" />
+      <Analytics />
     </>
   );
 };
