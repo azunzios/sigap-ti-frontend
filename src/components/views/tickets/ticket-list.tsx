@@ -83,9 +83,23 @@ export const TicketList: React.FC<TicketListProps> = ({
   const effectiveRole = activeRole || currentUser.role;
   const isAdmin =
     effectiveRole === "admin_layanan" || effectiveRole === "super_admin";
-  const isTeknisiOnly = effectiveRole === "teknisi";
+  const isTeknisi = effectiveRole === "teknisi";
   const isAdminPenyedia = effectiveRole === "admin_penyedia";
-  const isPegawaiOnly = !isAdmin && !isTeknisiOnly && !isAdminPenyedia;
+  const isPegawai = effectiveRole === "pegawai";
+
+  // DEBUG: Log untuk troubleshooting multi-role
+  console.log("🔍 TICKET LIST DEBUG:", {
+    activeRole,
+    "currentUser.role": currentUser.role,
+    "currentUser.roles": currentUser.roles,
+    effectiveRole,
+    isPegawai,
+    isTeknisi,
+    isAdmin,
+  });
+
+  // Untuk multi-role users, tentukan scope berdasarkan activeRole saat ini
+  // Bukan berdasarkan "only" logic karena bisa punya multiple roles
 
   // Reset filterStatus ketika filterType berubah
   useEffect(() => {
@@ -112,9 +126,9 @@ export const TicketList: React.FC<TicketListProps> = ({
       } else if (isAdminPenyedia) {
         // Admin penyedia melihat tiket yang butuh work order
         query.push("scope=work_order_needed");
-      } else if (isPegawaiOnly) {
+      } else if (isPegawai) {
         query.push("scope=my");
-      } else if (isTeknisiOnly) {
+      } else if (isTeknisi) {
         query.push("scope=assigned");
       }
       if (!isAdminPenyedia && filterType !== "all") {
@@ -163,14 +177,18 @@ export const TicketList: React.FC<TicketListProps> = ({
           if (filterStatus === "submitted") {
             query.push(`status=submitted`);
           } else if (filterStatus === "processing") {
-            query.push(`statuses=assigned,in_progress,on_hold,waiting_for_submitter`);
+            query.push(
+              `statuses=assigned,in_progress,on_hold,waiting_for_submitter`
+            );
           } else if (filterStatus === "closed") {
             query.push(`status=closed`);
           }
         } else if (filterType === "perbaikan") {
           // Perbaikan: submitted, in_progress (maps to multiple), closed
           if (filterStatus === "in_progress") {
-            query.push(`statuses=assigned,in_progress,on_hold,waiting_for_submitter`);
+            query.push(
+              `statuses=assigned,in_progress,on_hold,waiting_for_submitter`
+            );
           } else {
             query.push(`status=${filterStatus}`);
           }
@@ -186,28 +204,33 @@ export const TicketList: React.FC<TicketListProps> = ({
         }
       }
 
-      // Scope according to active role to force backend filtering even for multi-role users
-      if (isPegawaiOnly) {
+      // Scope according to active role (untuk multi-role, kirim scope sesuai role yang sedang aktif)
+      if (isPegawai) {
         query.push("scope=my");
-      } else if (isTeknisiOnly) {
+        console.log("✅ Sending scope=my (Pegawai)");
+      } else if (isTeknisi) {
         query.push("scope=assigned");
+        console.log("⚠️ Sending scope=assigned (Teknisi)");
       } else if (isAdminPenyedia) {
-        // Admin penyedia melihat tiket yang butuh work order
         query.push("scope=work_order_needed");
+        console.log("📦 Sending scope=work_order_needed (Admin Penyedia)");
+      } else {
+        console.log("🔓 No scope sent (Admin/Super Admin)");
       }
 
       const url = `tickets?${query.join("&")}`;
+      console.log("📡 API Request URL:", url);
       const res: any = await api.get(url);
 
       let data = Array.isArray(res) ? res : res?.data || [];
       const responseMeta = res?.meta || res;
 
       // Safety: filter di frontend sesuai activeRole agar pegawai tidak melihat tiket orang lain
-      if (isPegawaiOnly) {
+      if (isPegawai) {
         data = data.filter(
           (t: any) => (t.userId || t.user_id) === currentUser.id
         );
-      } else if (isTeknisiOnly) {
+      } else if (isTeknisi) {
         data = data.filter(
           (t: any) => (t.assignedTo || t.assigned_to) === currentUser.id
         );
@@ -222,7 +245,7 @@ export const TicketList: React.FC<TicketListProps> = ({
       setTickets(data);
       setPagination({
         total:
-          isPegawaiOnly || isTeknisiOnly
+          isPegawai || isTeknisi
             ? data.length
             : responseMeta.total || data.length,
         per_page: responseMeta.per_page || 15,
@@ -263,7 +286,10 @@ export const TicketList: React.FC<TicketListProps> = ({
   const getStatusBadge = (status: string) => {
     return (
       <div className="text-sm">
-        <span className="text-muted-foreground font-medium">status:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{status}</span>
+        <span className="text-muted-foreground font-medium">status:</span>{" "}
+        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+          {status}
+        </span>
       </div>
     );
   };
@@ -297,7 +323,10 @@ export const TicketList: React.FC<TicketListProps> = ({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `laporan_tiket_${new Date().toISOString().split("T")[0]}.xlsx`);
+      link.setAttribute(
+        "download",
+        `laporan_tiket_${new Date().toISOString().split("T")[0]}.xlsx`
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -375,21 +404,24 @@ export const TicketList: React.FC<TicketListProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex gap-3 items-center">
-            {/* Search - 2x growth */}
-            <div className="relative flex-[2]">
+
+            {/* Search - Wrapper dikunci h-10 */}
+            <div className="relative flex-[2] h-10">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Cari tiket..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 h-10 text-sm w-full"
+                // Input h-full agar mengisi wrapper
+                className="pl-9 h-full text-sm w-full !ring-offset-0"
               />
             </div>
 
             {/* Admin Penyedia - Status Filter only (flex-1) */}
             {isAdminPenyedia && (
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="h-10 text-sm flex-1">
+                {/* SelectTrigger dipaksa !h-10 */}
+                <SelectTrigger className="!h-10 text-sm flex-1">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -408,12 +440,11 @@ export const TicketList: React.FC<TicketListProps> = ({
                 </SelectContent>
               </Select>
             )}
-
             {/* Non-Admin Penyedia - Type (flex-1) + Status (flex-1) */}
             {!isAdminPenyedia && (
               <>
                 <Select value={filterType} onValueChange={setFilterType}>
-                  <SelectTrigger className="h-10 text-sm flex-1">
+                  <SelectTrigger className="!h-10 text-sm flex-1">
                     <SelectValue placeholder="Tipe" />
                   </SelectTrigger>
                   <SelectContent>
@@ -429,8 +460,12 @@ export const TicketList: React.FC<TicketListProps> = ({
                   disabled={filterType === "all"}
                 >
                   <SelectTrigger
-                    className="h-10 text-sm flex-1"
-                    title={filterType === "all" ? "Pilih tipe tiket terlebih dahulu untuk filter status" : undefined}
+                    className="!h-10 text-sm flex-1"
+                    title={
+                      filterType === "all"
+                        ? "Pilih tipe tiket terlebih dahulu untuk filter status"
+                        : undefined
+                    }
                   >
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -565,8 +600,6 @@ export const TicketList: React.FC<TicketListProps> = ({
                             <div className="text-right">
                               {getStatusBadge(ticket.status)}
                             </div>
-
-
                           </div>
                         </div>
                       </CardContent>
@@ -623,7 +656,10 @@ export const TicketList: React.FC<TicketListProps> = ({
       </Card>
 
       {/* Status Info Dialog - Available for all roles */}
-      <StatusInfoDialog open={showStatusInfo} onOpenChange={setShowStatusInfo} />
+      <StatusInfoDialog
+        open={showStatusInfo}
+        onOpenChange={setShowStatusInfo}
+      />
     </div>
   );
 };
