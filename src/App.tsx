@@ -15,6 +15,28 @@ import {
 } from "@/lib/storage";
 import type { User } from "@/types";
 
+// Visitor counter component - fetch dari Vercel serverless function
+const VisitorCounter: React.FC = () => {
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/visitors")
+      .then((r) => r.json())
+      .then((d) => setCount(d.visitors))
+      .catch(() => setCount(null));
+  }, []);
+
+  if (count === null) return null;
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm z-50">
+      <p className="text-xs text-gray-600">
+        <span className="font-medium">{count.toLocaleString()}</span> visitors
+      </p>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,6 +107,7 @@ const App: React.FC = () => {
       </div>
       <Toaster position="top-right" />
       <Analytics />
+      <VisitorCounter />
     </>
   );
 };
