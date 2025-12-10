@@ -300,7 +300,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
                 {/* Tambah teks SIGAP-TI di bawah icon untuk layar max-md */}
                 <div className="md:hidden text-center mt-2">
-                  <h1 className="text font-black text-gray-900">Sigap-ti</h1>
+                  <h1 className="text font-black text-xl text-gray-900">Sigap-ti</h1>
                 </div>
               </CardHeader>
 
