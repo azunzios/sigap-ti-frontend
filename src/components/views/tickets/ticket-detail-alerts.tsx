@@ -22,6 +22,7 @@ import {
 import type { User, Ticket } from "@/types";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { FeedbackModal } from "./feedback-modal";
 
 interface TicketDetailAlertsProps {
   ticket: Ticket;
@@ -59,6 +60,8 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
   const [showPegawaiCloseDialog, setShowPegawaiCloseDialog] = useState(false);
   const [pegawaiCloseUnderstand, setPegawaiCloseUnderstand] = useState(false);
   const [isClosingPegawaiTicket, setIsClosingPegawaiTicket] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  
   return (
     <>
       {/* ============== ALERTS & NOTIFICATIONS FOR ADMIN LAYANAN ============== */}
@@ -73,8 +76,8 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                   <AlertCircle className="h-8 w-8 text-blue-600" />
                   <div>
                     <h3 className="text-blue-900">
-                      {ticket.type === "zoom_meeting" 
-                        ? "Tiket Zoom Meeting" 
+                      {ticket.type === "zoom_meeting"
+                        ? "Tiket Zoom Meeting"
                         : "Tiket Menunggu Review"}
                     </h3>
                     <p className="text-sm text-blue-700">
@@ -113,7 +116,7 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
       {/* Alert: Admin Layanan Close Ticket - Only for perbaikan type */}
       {effectiveRole === "admin_layanan" &&
         ticket.type === "perbaikan" &&
-        ticket.status !== "closed" && (
+        ticket.status === "waiting_for_submitter" && (
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -149,29 +152,21 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
         (() => {
           const diagnosis = (ticket as any).diagnosis;
           const hasBeenDiagnosed = !!diagnosis;
-          // Use camelCase from backend TicketDiagnosisResource
           const repairType = diagnosis?.repairType;
 
-          // Check if repair type needs work order
           const needsWorkOrder = [
             "need_sparepart",
             "need_vendor",
             "need_license",
           ].includes(repairType);
 
-          // Check if can be completed (either direct_repair or unrepairable)
           const canBeCompleted = ["direct_repair", "unrepairable"].includes(
             repairType
           );
 
-          // Check if unrepairable
           const isUnrepairable = repairType === "unrepairable";
-
-          // Get work orders for this ticket
           const workOrders = getWorkOrdersByTicket(ticket.id);
 
-          // Check if work orders are ready (using the work_orders_ready flag from backend)
-          // If work_orders_ready is true, skip work order checks and allow completion
           const workOrdersReady = (ticket as any).workOrdersReady === true;
           const allWorkOrdersDelivered =
             workOrdersReady ||
@@ -182,13 +177,11 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                   wo.status
                 )
               )) ||
-            !needsWorkOrder; // If doesn't need work order, always true
+            !needsWorkOrder;
 
-          // Button enable/disable logic
-          const diagnosaEnabled = true; // Always can redo diagnosis
+          const diagnosaEnabled = true;
           const workOrderEnabled = hasBeenDiagnosed && needsWorkOrder;
 
-          // Card styling based on unrepairable status
           const cardBgClass = isUnrepairable
             ? "border-red-200 bg-red-50"
             : "border-blue-200 bg-blue-50";
@@ -204,13 +197,13 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
 
           return (
             <Card className={cardBgClass}>
-              <CardContent className="p-6">
+              <CardContent className="p-6 max-md:p-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Wrench className={`h-8 w-8 ${iconColorClass}`} />
+                    <Wrench className={`h-8 w-8 max-md:h-6 max-md:w-6 ${iconColorClass}`} />
                     <div>
-                      <h3 className={titleColorClass}>Workflow Perbaikan</h3>
-                      <p className={`text-sm ${descColorClass}`}>
+                      <h3 className={`${titleColorClass} max-md:text-sm`}>Workflow Perbaikan</h3>
+                      <p className={`text-sm max-md:text-xs ${descColorClass}`}>
                         {!hasBeenDiagnosed
                           ? "Mulai dengan mengisi form diagnosis"
                           : needsWorkOrder
@@ -226,7 +219,7 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
 
                   {/* Status Badge */}
                   {hasBeenDiagnosed && (
-                    <div className="bg-white rounded p-3 text-sm">
+                    <div className="bg-white rounded p-3 max-md:p-2.5 text-sm max-md:text-xs">
                       <div className="font-medium text-gray-700 mb-1">
                         Status Diagnosis:{" "}
                         {repairType === "direct_repair"
@@ -249,25 +242,25 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-2">
+                  {/* Action Buttons - Responsive flex */}
+                  <div className="flex gap-2 pt-2 max-md:flex-col">
                     <Button
                       onClick={onShowDiagnosaDialog}
-                      className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                      className="bg-blue-600 hover:bg-blue-700 text-white flex-1 cursor-pointer max-md:w-full max-md:h-9"
                       disabled={!diagnosaEnabled}
                       title={
                         !diagnosaEnabled ? "Isi diagnosis terlebih dahulu" : ""
                       }
                     >
-                      <Wrench className="h-4 w-4 mr-2" />
-                      {hasBeenDiagnosed ? "Ubah Diagnosis" : "Isi Diagnosis"}
+                      <Wrench className="h-4 w-4 max-md:h-3.5 max-md:w-3.5 mr-2" />
+                      <span className="max-md:text-sm">{hasBeenDiagnosed ? "Ubah Diagnosis" : "Isi Diagnosis"}</span>
                     </Button>
 
                     {needsWorkOrder && (
                       <Button
                         onClick={onShowSparepartDialog}
                         variant="outline"
-                        className="border-blue-300 flex-1"
+                        className="border-blue-300 flex-1 cursor-pointer max-md:w-full max-md:h-9"
                         disabled={!workOrderEnabled}
                         title={
                           !workOrderEnabled
@@ -275,8 +268,8 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                             : ""
                         }
                       >
-                        <Package className="h-4 w-4 mr-2" />
-                        Work Orders
+                        <Package className="h-4 w-4 max-md:h-3.5 max-md:w-3.5 mr-2" />
+                        <span className="max-md:text-sm">Work Orders</span>
                       </Button>
                     )}
 
@@ -299,11 +292,11 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                             setIsLoadingComplete(false);
                           }
                         }}
-                        className={`flex-1 ${
+                        className={`flex-1 max-md:w-full max-md:h-9 ${
                           isUnrepairable
                             ? "bg-red-600 hover:bg-red-700"
                             : "bg-green-600 hover:bg-green-700"
-                        } text-white`}
+                        } text-white cursor-pointer`}
                         disabled={
                           !hasBeenDiagnosed ||
                           (needsWorkOrder && !allWorkOrdersDelivered) ||
@@ -317,8 +310,8 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                             : ""
                         }
                       >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Selesaikan
+                        <CheckCircle className="h-4 w-4 max-md:h-3.5 max-md:w-3.5 mr-2" />
+                        <span className="max-md:text-sm">Selesaikan</span>
                       </Button>
                     )}
                   </div>
@@ -428,6 +421,36 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
             </Card>
           );
         })()}
+
+      {/* Alert: Pegawai - Closed tiket belum ada feedback */}
+      {effectiveRole === "pegawai" &&
+        ticket.type === "perbaikan" &&
+        ticket.status === "closed" &&
+        !((ticket as any).feedback) && (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="h-8 w-8 text-amber-600" />
+                  <div>
+                    <h3 className="font-semibold text-amber-900">
+                      Tiket Telah Selesai
+                    </h3>
+                    <p className="text-sm text-amber-700">
+                      Berikan feedback Anda untuk membantu kami meningkatkan layanan
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="bg-amber-600 hover:bg-amber-700 cursor-pointer"
+                >
+                  Isi Feedback
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Alert: Teknisi - On Hold removed - now handled by TeknisiWorkflow component */}
 
@@ -634,7 +657,13 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                   toast.success("Tiket berhasil ditutup");
                   setShowPegawaiCloseDialog(false);
                   setPegawaiCloseUnderstand(false);
-                  onUpdate?.();
+                  
+                  // Refresh ticket data first, then show feedback modal
+                  await onUpdate?.();
+                  
+                  // Show feedback modal after closing ticket
+                  console.log("🔔 Opening feedback modal for ticket:", ticket.id);
+                  setShowFeedbackModal(true);
                 } catch (error: any) {
                   console.error("Failed to close ticket:", error);
                   toast.error(
@@ -652,6 +681,17 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        ticketId={ticket.id}
+        ticketNumber={ticket.ticketNumber}
+        onSuccess={() => {
+          onUpdate?.();
+        }}
+      />
     </>
   );
 };

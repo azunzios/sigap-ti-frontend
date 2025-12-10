@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { TicketProgressTracker } from "./ticket-progress-tracker";
@@ -84,6 +84,9 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
   const workOrderDialog = useWorkOrderDialogs();
   const { comment, setComment } = useCommentState();
   const { showZoomReviewModal, setShowZoomReviewModal } = useZoomReviewModal();
+  
+  // State untuk prevent double submit komentar
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const {
     comments,
     loading: commentsLoading,
@@ -104,6 +107,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
         console.log("📝 Ticket Detail fetched:", ticketData);
       } catch (error) {
         console.error("Failed to fetch ticket detail:", error);
+        toast.error("Gagal memuat detail tiket");
       } finally {
         setLoadingDetail(false);
       }
@@ -116,7 +120,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
     fetchComments(ticketId);
   }, [ticketId, fetchComments]);
 
-  const ticket = ticketDetail || tickets.find((t) => t.id === ticketId);
+  const ticket = ticketDetail || tickets.find((t) => t.id === Number(ticketId));
 
   // === COMPUTED VALUES (useMemo must be before conditional returns) ===
   const [technicianStats, setTechnicianStats] = React.useState<
@@ -267,6 +271,13 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
       toast.error("Komentar tidak boleh kosong");
       return;
     }
+    
+    // Prevent double submission
+    if (isSubmittingComment) {
+      return;
+    }
+    
+    setIsSubmittingComment(true);
     try {
       await addComment(ticketId, comment);
       toast.success("Komentar berhasil dikirim");
@@ -274,6 +285,8 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
     } catch (error) {
       console.error("Error adding comment:", error);
       toast.error("Gagal mengirim komentar");
+    } finally {
+      setIsSubmittingComment(false);
     }
   };
 
@@ -359,6 +372,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
         comment={comment}
         onCommentChange={setComment}
         onAddComment={handleAddComment}
+        isSubmittingComment={isSubmittingComment}
         getWorkOrdersByTicket={getWorkOrdersByTicket}
         comments={comments}
         commentsLoading={commentsLoading}
@@ -452,10 +466,11 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
             <Button
               variant="outline"
               onClick={() => adminDialogs.setShowAssignDialog(false)}
+              className="cursor-pointer"
             >
               Batal
             </Button>
-            <Button onClick={handleAssign}>Assign</Button>
+            <Button onClick={handleAssign} className="cursor-pointer">Assign</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -475,10 +490,10 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
             Lanjutkan?
           </p>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer">Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleStatusChangeOnDiagnosisSubmit}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
             >
               Lanjutkan
             </AlertDialogAction>
@@ -503,12 +518,13 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({
               : "Mulai dengan mengisi form diagnosis untuk menentukan kondisi barang dan opsi perbaikan."}
           </p>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer">Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setShowDiagnosisConfirm(false);
                 diagnosaDialog.setShowDiagnosaDialog(true);
               }}
+              className="cursor-pointer"
             >
               Lanjutkan
             </AlertDialogAction>
