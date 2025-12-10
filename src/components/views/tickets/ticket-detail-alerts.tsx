@@ -367,7 +367,7 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
         ticket.status === "waiting_for_submitter" && (
           <Card className="border-orange-200 bg-orange-50">
             <CardContent className="p-6">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between max-md:flex-col">
                 <div className="flex items-center gap-3">
                   <AlertCircle className="h-8 w-8 text-orange-600" />
                   <div>
@@ -382,7 +382,7 @@ export const TicketDetailAlerts: React.FC<TicketDetailAlertsProps> = ({
                 </div>
                 <Button
                   onClick={() => setShowPegawaiCloseDialog(true)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  className="bg-orange-600 hover:bg-orange-700 text-white max-md:items-center max-md:self-center max-md:mt-4"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Tutup Tiket
