@@ -275,7 +275,7 @@ export const UserOnboarding: React.FC<UserOnboardingProps> = ({ open, onComplete
           </motion.div>
         </AnimatePresence>
 
-        <DialogFooter className="flex flex-col items-center gap-3">
+        <DialogFooter className="md:!flex md:!flex-col items-center gap-3">
           <div className="flex gap-2">
             {currentStep > 0 && (
               <Button variant="outline" className="rounded-full bg-gray-700 hover:bg-gray-800 w-[120px]" onClick={handlePrev}>
